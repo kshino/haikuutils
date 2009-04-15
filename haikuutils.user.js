@@ -3,7 +3,7 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.2.1
+// @version        1.2.2
 // ==/UserScript==
 (function() {
     // Select utility
@@ -20,15 +20,15 @@
         // ログアウトリンクの付加
         { name: 'addLogout', args: {} },
     ];
-    
+
     function xpath(context, query) {
         return document.evaluate(
             query, context, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null
         )
     }
-    
+
     var utils = {};
-    
+
     utils.adColoring = {
         initOnly: false,
         func: function ( args ) {
@@ -39,7 +39,7 @@
             }
         },
     };
-    
+
     utils.imageNoResize = {
         initOnly: true,
         func: function ( args ) {
@@ -47,7 +47,7 @@
                 'loadedEntries', 
                 unsafeWindow.Hatena.Haiku.ImageResizer.resizeImages
             );
-            
+
             var imgs = xpath( document.body, '//div[@class="body"]//img' );
             for( var i = 0; i < imgs.snapshotLength; ++i ) {
                 var img = imgs.snapshotItem(i);
@@ -98,7 +98,7 @@
             }
         },
     };
-    
+
     for( var i = 0; i < runUtils.length; ++i ) {
         var target = runUtils[i];
         var util   = utils[ target.name ];
@@ -107,7 +107,7 @@
             if( util.initOnly ) util.func = null;
         }
         if( util.func && window.AutoPagerize ) {
-            window.AutoPagerize.addFilter(function(){ util.func( target.args ) });
+            window.AutoPagerize.addFilter(function(){ if( util.func ) util.func( target.args ) });
         }
     }
 })();
