@@ -3,7 +3,7 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.2.0
+// @version        1.2.1
 // ==/UserScript==
 (function() {
     // Select utility
@@ -102,8 +102,11 @@
     for( var i = 0; i < runUtils.length; ++i ) {
         var target = runUtils[i];
         var util   = utils[ target.name ];
-        util.func();
-        if( ! util.initOnly && window.AutoPagerize ) {
+        if( util.func ) {
+            util.func();
+            if( util.initOnly ) util.func = null;
+        }
+        if( util.func && window.AutoPagerize ) {
             window.AutoPagerize.addFilter(function(){ util.func( target.args ) });
         }
     }
