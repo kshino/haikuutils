@@ -3,7 +3,7 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.2.2
+// @version        1.3.0
 // ==/UserScript==
 (function() {
     // Select utility
@@ -19,6 +19,9 @@
 
         // ログアウトリンクの付加
         { name: 'addLogout', args: {} },
+
+        // Reply投稿時、別ウィンドウに遷移
+        { name: 'replyToBlank', args: {} },
     ];
 
     function xpath(context, query) {
@@ -96,6 +99,18 @@
             for( var i = 0; i < lists.snapshotLength; ++i ) {
                 lists.snapshotItem(i).style.lineHeight = '1.1em';
             }
+        },
+    };
+
+    utils.replyToBlank = {
+        initOnly: true,
+        func: function ( args ) {
+            var createReplyForm = unsafeWindow.Hatena.Haiku.EntryForm.createReplyForm;
+            unsafeWindow.Hatena.Haiku.EntryForm.createReplyForm = function ( id ) {
+                var form = createReplyForm( id );
+                form.target = '_blank';
+                return form;
+            };
         },
     };
 
