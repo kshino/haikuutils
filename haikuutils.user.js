@@ -3,7 +3,7 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.3.0
+// @version        1.4.0
 // ==/UserScript==
 (function() {
     // Select utility
@@ -22,6 +22,9 @@
 
         // Reply投稿時、別ウィンドウに遷移
         { name: 'replyToBlank', args: {} },
+
+        // お気に入りを解除する時に確認する
+        { name: 'confirmFollowRemove', args: {} },
     ];
 
     function xpath(context, query) {
@@ -111,6 +114,23 @@
                 form.target = '_blank';
                 return form;
             };
+        },
+    };
+
+    utils.confirmFollowRemove = {
+        initOnly: true,
+        func: function ( args ) {
+            var forms = xpath( document.body, '//form[@action="/follow.remove"]' );
+            if( forms.snapshotLength != 1 ) return;
+
+            var onsubmit = function ( e ) {
+                if( ! confirm( 'Stop following?' ) ) {
+                    e.preventDefault();
+                }
+            };
+
+            var form = forms.snapshotItem( 0 );
+            form.addEventListener( 'submit', onsubmit, true );
         },
     };
 
