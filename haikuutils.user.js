@@ -3,13 +3,13 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.4.0
+// @version        1.4.1
 // ==/UserScript==
 (function() {
     // Select utility
     var runUtils = [
         // 広告をわかりやすいように背景色をつける
-        { name: 'adColoring', args: {} },
+        { name: 'adColoring', args: { color: '#ededed' } },
 
         // 小さな画像が引き延ばされて大きくなる問題を解消する
         { name: 'imageNoResize', args: {} },
@@ -27,6 +27,9 @@
         { name: 'confirmFollowRemove', args: {} },
     ];
 
+    location.host.match( /\.hatena\.(.+)/ );
+    var DOMAIN = RegExp.$1;
+
     function xpath(context, query) {
         return document.evaluate(
             query, context, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null
@@ -41,7 +44,7 @@
             var ads = xpath( document.body, '//div[@class="entry ad"]' );
             for( var i = 0; i < ads.snapshotLength; ++i ) {
                 var ad = ads.snapshotItem(i);
-                ad.style.background = '#cccccc';
+                ad.style.background = args.color;
             }
         },
     };
@@ -67,7 +70,7 @@
         initOnly: true,
         func: function ( args ) {
             var anchors = xpath( document.body, '//ul[@id="global-menu"]/li/a' );
-            var login   = 'https://www.hatena.ne.jp/login';
+            var login   = 'https://www.hatena.' + DOMAIN + '/login';
             for( var i = 0; i < anchors.snapshotLength; ++i ) {
                 var anchor = anchors.snapshotItem(i);
                 if( anchor.href.indexOf( login ) == -1 ) continue;
@@ -84,7 +87,7 @@
             if( username.snapshotLength == 0 ) return;
 
             var list = xpath( document.body, '//ul[@id="global-menu"]' );
-            var logout  = 'https://www.hatena.ne.jp/logout';
+            var logout  = 'https://www.hatena.' + DOMAIN + '/logout';
 
             if( list.snapshotLength != 1 ) return;
 
@@ -138,11 +141,15 @@
         var target = runUtils[i];
         var util   = utils[ target.name ];
         if( util.func ) {
-            util.func();
+            util.func( target.args );
             if( util.initOnly ) util.func = null;
         }
         if( util.func && window.AutoPagerize ) {
-            window.AutoPagerize.addFilter(function(){ if( util.func ) util.func( target.args ) });
+            window.AutoPagerize.addFilter(
+                function(){
+                    if( util.func ) util.func( target.args );
+                }
+            );
         }
     }
 })();
