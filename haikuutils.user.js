@@ -3,7 +3,7 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.5.0
+// @version        1.6.0
 // ==/UserScript==
 (function() {
     // Select utility
@@ -31,6 +31,9 @@
 
         // docomoマップのURLをGoogleマップのURLに置換する
         { name: 'docomoMapToGoogleMap', args: {} },
+
+        // Import Star Friends実行時に確認する
+        { name: 'confirmImportStarFriends', args: {} },
     ];
 
     location.host.match( /\.hatena\.(.+)/ );
@@ -216,6 +219,20 @@
                 link.href = url;
                 link.textContent = url;
             }
+        },
+    };
+
+    utils.confirmImportStarFriends = {
+        initOnly: true,
+        func: function ( args ) {
+            var forms = xpath( document.body, '//form[@action="/import"]' );
+            if( forms.length != 1 ) return;
+
+            var onsubmit = function ( e ) {
+                if( ! confirm( 'Import Star Friends?' ) ) e.preventDefault();
+            };
+
+            forms[0].addEventListener( 'submit', onsubmit, true );
         },
     };
 
