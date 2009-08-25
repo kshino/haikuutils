@@ -3,7 +3,7 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.6.0
+// @version        1.7.0
 // ==/UserScript==
 (function() {
     // Select utility
@@ -34,11 +34,15 @@
 
         // Import Star Friends実行時に確認する
         { name: 'confirmImportStarFriends', args: {} },
+
+        // idリンク不具合対処
+        { name: 'repairIdLink', args: {} },
     ];
 
     location.host.match( /\.hatena\.(.+)/ );
     const DOMAIN = RegExp.$1;
     const GMAP   = 'http://maps.google.com/maps?q=';
+    const ID_REGEXP = '[a-zA-Z][a-zA-Z0-9_-]{1,30}[a-zA-Z0-9]';
 
     function xpath( context, query ) {
         var items = document.evaluate(
@@ -233,6 +237,32 @@
             };
 
             forms[0].addEventListener( 'submit', onsubmit, true );
+        },
+    };
+
+    utils.repairIdLink = {
+        initOnly: false,
+        func: function ( args ) {
+            var entries = xpath( document.body, '//div[@class="entry"]//div[@class="body"]' );
+            var id_regexp = new RegExp( '^' + ID_REGEXP + '$' );
+            var id_syntax = new RegExp( 'id:(' + ID_REGEXP + ')', 'g' );
+            var anchor_cb = function ( all, id, text ) {
+                if( id.match( id_regexp ) ) return all;
+
+                return text.replace(
+                    id_syntax,
+                    '<a href="/$1/" class="user">id:$1</a>'
+                );
+            };
+
+            for( var i = 0; i < entries.length; ++i ) {
+                var entry = entries[i];
+                entry.innerHTML = entry.innerHTML.replace(
+                    /<a\s+href="\/([^/]+)\/"\s+class="user">(.+?)<\/a>/g,
+                    anchor_cb
+                );
+            }
+
         },
     };
 
