@@ -3,7 +3,7 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.7.0
+// @version        1.7.1
 // ==/UserScript==
 (function() {
     // Select utility
@@ -35,8 +35,8 @@
         // Import Star Friends実行時に確認する
         { name: 'confirmImportStarFriends', args: {} },
 
-        // idリンク不具合対処
-        { name: 'repairIdLink', args: {} },
+        // idリンク不具合対処(idea:25073)
+//        { name: 'repairIdLink', args: {} },
     ];
 
     location.host.match( /\.hatena\.(.+)/ );
