@@ -212,7 +212,7 @@
         initOnly: false,
         func: function ( args ) {
             var links = xpath( document.body, '//div[@class="entry"]//div[@class="body"]//a' );
-            var reg_map = /^http:\/\/docomo\.ne\.jp\/cp\/map\.cgi\?/;
+            var reg_map = /http:\/\/docomo\.ne\.jp\/cp\/map\.cgi\?/;
             for( var i = 0; i < links.length; ++i ) {
                 var link = links[i];
                 if( ! link.href.match( reg_map ) ) continue;
