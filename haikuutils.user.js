@@ -3,7 +3,7 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.7.1
+// @version        1.8.0
 // ==/UserScript==
 (function() {
     // Select utility
@@ -37,6 +37,9 @@
 
         // idリンク不具合対処(idea:25073)
 //        { name: 'repairIdLink', args: {} },
+
+        // お絵描きが蹴られた時にsubmitをキャンセルする
+        { name: 'cancelSubmitIfFailedDrawSaving', args: {} },
     ];
 
     location.host.match( /\.hatena\.(.+)/ );
@@ -263,6 +266,22 @@
                 );
             }
 
+        },
+    };
+
+    utils.cancelSubmitIfFailedDrawSaving = {
+        initOnly: false,
+        func: function ( args ) {
+            var postDrawing = unsafeWindow.Hatena.Haiku.EntryForm.postDrawing;
+            unsafeWindow.Hatena.Haiku.EntryForm.postDrawing = function(uri) {
+                if( uri == undefined || uri == null || uri == '' ) {
+                    alert( 'フォトライフへの保存に失敗しました。\n一筆増やすなど、何か変更させてからもう一度[Haiku!]をクリックしてください。' );
+                    var form = unsafeWindow.Hatena.Haiku.EntryForm.currentForm;
+                    if( form && form.submit ) form.submit.disabled = false;
+                    return;
+                }
+                postDrawing( uri );
+            };
         },
     };
 
