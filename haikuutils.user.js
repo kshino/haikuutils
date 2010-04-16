@@ -3,7 +3,7 @@
 // @namespace      http://www.scrapcode.net/
 // @include        http://h.hatena.ne.jp/*
 // @include        http://h.hatena.com/*
-// @version        1.8.0
+// @version        1.8.1
 // ==/UserScript==
 (function() {
     // Select utility
@@ -113,7 +113,7 @@
     };
 
     utils.imageNoResize = {
-        initOnly: true,
+        initOnly: false,
         func: function ( args ) {
             unsafeWindow.Hatena.Haiku.Pager.removeEventListener(
                 'loadedEntries', 
@@ -123,8 +123,13 @@
             var imgs = xpath( document.body, '//div[@class="body"]//img' );
             for( var i = 0; i < imgs.length; ++i ) {
                 var img = imgs[i];
-                if( typeof( img['width']  ) != 'undefined' ) img.removeAttribute( 'width' );
-                if( typeof( img['height'] ) != 'undefined' ) img.removeAttribute( 'height' );
+                if( img.alt == 'Reply to' ) continue;
+
+                if( typeof( img['width']  ) != 'undefined' )
+                    img.removeAttribute( 'width' );
+
+                if( typeof( img['height'] ) != 'undefined' )
+                    img.removeAttribute( 'height' );
             }
         },
     };
@@ -285,23 +290,28 @@
         },
     };
 
-    for( var i = 0; i < runUtils.length; ++i ) {
-        var target = runUtils[i];
-        var util   = utils[ target.name ];
+    function runUtil( target, util ) {
         if( util.func ) {
             util.func( target.args );
             if( util.initOnly ) util.func = null;
         }
 
-        if( ! util.func ) continue;
+        if( ! util.func ) return;
 
         var func = function() {
             if( util.func ) util.func( target.args );
         };
+
         if( window.AutoPagerize ) {
             window.AutoPagerize.addFilter( func );
         }else {
             unsafeWindow.Hatena.Haiku.Pager.addEventListener( 'loadedEntries', func );
         }
+    }
+
+    for( var i = 0; i < runUtils.length; ++i ) {
+        var target = runUtils[i];
+        var util   = utils[ target.name ];
+        runUtil( target, utils[ target.name ] );
     }
 })();
